@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Together</title>
+    <link rel="stylesheet" href="/project/templates/static/style.css">
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Watch Movie Together</h1>
+    <video id="videoPlayer" width="800" controls><source src="/project/templates/static/video.mp4" type="video/mp4">
+    your Browser does not support the video tag.
+    </video>
+    <script>
+        const socket = io();
+        const video = document.getElementById("videoPlayer");
+
+        video.addEventListener("play", () => {
+            socket.emit("play");
+        });
+
+        video.addEventListener("pause", () => {
+            socket.emit("pause");
+        });
+
+        video.addEventListener("timeupdate", () => {
+            socket.emit("sync", {currentTime: video.currentTime 
+            });
+        });
+
+        socket.on("play", () => {
+            if(video.paused) video.play();
+        });
+
+        socket.on("pause", () => {
+            if(!video.paused) video.pause();
+        });
+
+        socket.on("sync", (data) => {
+            if (Math.abs(video.currentTime - data.currentTime) > 0.5) {
+                video.currentTime = data.currentTime;
+            }
+        });
+    </script>
+    
+</body>
+</html>
